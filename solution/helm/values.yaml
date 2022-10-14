@@ -1,0 +1,116 @@
+# Default values for helm.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+env:
+  - name: CSVSERVER_BORDER
+    value: orange
+
+image:
+  repository: infracloudio/csvserver
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+service:
+  type: NodePort
+  port: 9300
+  nodePort: 31000
+  targetPort: 9300
+
+volumeMounts:
+  - name: csv-config
+    mountPath: /csvserver/inputdata
+    subPath: inputdata
+
+volumes:
+  - name: csv-config
+    configMap: 
+      name: csv-config
+
+resources: 
+  limits:
+    cpu: 100m
+    memory: 128Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+ingress:
+  enables: false
+
+
+### PROMETHEUS VALUES ###
+prometheus:
+  image:
+    repository: prom/prometheus
+    pullPolicy: IfNotPresent
+    tag: "latest"
+
+  service:
+    type: NodePort
+    port: 9090
+    targetPort: 9090
+    nodePort: 32000
+
+  volumeMounts:
+    - name: prometheus-pvc
+      mountPath: /prometheus
+    - name: prometheus-config
+      mountPath: /etc/prometheus/prometheus.yml
+      subPath: prometheus.yml
+
+
+  volumes:
+    - name: prometheus-config
+      configMap: 
+        name: prometheus-config
+  
+  # volumeClaimTemplates:
+  # - metadata:
+  #     name: prometheus-pvc
+  #   spec:
+  #     accessModes: ["ReadWriteOnce"]
+  #     resources:
+  #       requests:
+  #         storage: 1Gi
+  
+  volumeClaimTemplates:
+    name: prometheus-pvc
+    size: 1Gi

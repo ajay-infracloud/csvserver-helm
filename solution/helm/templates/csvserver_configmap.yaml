@@ -1,0 +1,17 @@
+apiVersion: v1
+data:
+  inputdata: |
+    0, 17438
+    1, 7371
+    2, 5193
+    3, 20965
+    4, 14119
+    5, 28996
+    6, 19793
+    7, 9344
+    8, 23118
+    9, 21570
+kind: ConfigMap
+metadata:
+  name: csv-config
+  namespace: default
